@@ -69,7 +69,6 @@ class StartingAdjExtractor(BaseEstimator, TransformerMixin):
         return pd.DataFrame(X_tagged)
     pass
 
-
 def tokenize(text):
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
@@ -98,6 +97,15 @@ def index():
     # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
+
+    ## genre: 
+    direct = df[df['genre']=='direct'].iloc[:,4:]
+    social = df[df['genre']=='social'].iloc[:,4:]
+    news = df[df['genre']=='news'].iloc[:,4:]
+
+    direct_percent = direct.sum()/direct.shape[0]
+    social_percent = social.sum()/social.shape[0]
+    news_percent = news.sum()/news.shape[0]
     
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
@@ -113,13 +121,92 @@ def index():
             'layout': {
                 'title': 'Distribution of Message Genres',
                 'yaxis': {
-                    'title': "Count"
+                    'title': "Count",
                 },
                 'xaxis': {
                     'title': "Genre"
                 }
             }
+        },
+        {
+            'data' :[
+                Bar(
+                    x= list(direct_percent.index),
+                    y= list(direct_percent.values)
+                )
+            ],
+
+            'layout': {
+                'title': 'Direct Message Classification',
+                'yaxis': {
+                    'title' : 'Percent of messages',
+                    'tickformat': '%',
+                    'range' : [0,0.7],
+                    'dtick' : 0.1
+                },
+                'xaxis' :{
+                    'title' : 'Classificaiton ',
+                    'tickangle': 45,
+                    'tickfont' : {
+                        'size': 10,
+                        'color' : 'black'
+                    }
+                }
+            }
+        },
+        {
+            'data' :[
+                Bar(
+                    x=social_percent.index,
+                    y=social_percent.values
+                )
+            ],
+
+            'layout': {
+                'title': 'Social Message Classification',
+                'yaxis': {
+                    'title' : 'Percent of messages',
+                    'tickformat': '%',
+                    'range' : [0,0.7],
+                    'dtick' : 0.1
+                },
+                'xaxis' :{
+                    'title' : 'Classificaiton ',
+                    'tickangle': 45,
+                    'tickfont' : {
+                        'size': 10,
+                        'color' : 'black'
+                    }
+                }
+            }
+        },
+        {
+            'data' :[
+                Bar(
+                    x= news_percent.index,
+                    y=news_percent.values
+                )
+            ],
+
+            'layout': {
+                'title': 'News Message Classification',
+                'yaxis': {
+                    'title' : 'Percent of messages',
+                    'tickformat': '%',
+                    'range' : [0,0.7],
+                    'dtick' : 0.1
+                },
+                'xaxis' :{
+                    'title' : 'Classificaiton ',
+                    'tickangle': 45,
+                    'tickfont' : {
+                        'size': 10,
+                        'color' : 'black'
+                    }
+                }
+            }
         }
+
     ]
     
     # encode plotly graphs in JSON
