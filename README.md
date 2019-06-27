@@ -1,5 +1,16 @@
 # Disaster Response Pipeline Project
 
+
+### Background
+
+Following a disaster, there is often a flood of messages on social media.  The challenge with this is to parse through the messages and find where and what type help is needed urgently.  
+
+A dataset of categorized messages was provided to help train a supervised ML model.
+
+### Purpose
+
+The purpose of this project is to create an ETL pipeline and a supervised ML pipeline to train a model to help categorize future disaster social media messages.  A webpage interace will be created to input new messages for categorization from the trained model and to provide data visualiztion on historical trends.
+
 ### Instructions:
 1. The workspace folder is the parent directory for the working files
 2. Run the following commands in the project's root directory to set up your database and model.
