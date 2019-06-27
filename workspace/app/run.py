@@ -30,8 +30,17 @@ app = Flask(__name__)
 
 
 class StartingVerbExtractor(BaseEstimator, TransformerMixin):
+    """Class extention of sklearn fit and transform, to identify if the first work of a sentence is a verb or RT"""
 
     def starting_verb(self, text):
+        """Parses the messages into sentences and words, identifies if the first word is verb or RT
+
+        Arguments:
+        text - (str) message
+
+        Return:
+            Boolean
+        """
         sentence_list = nltk.sent_tokenize(re.sub('[^\w\s]',' ',text))
         for sentence in sentence_list:
             pos_tags = nltk.pos_tag(tokenize(sentence))
@@ -47,29 +56,18 @@ class StartingVerbExtractor(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
+        """Transform message into boolean per the starting_verb function"""
         X_tagged = pd.Series(X).apply(self.starting_verb)
         return pd.DataFrame(X_tagged)
     pass
 
-class StartingAdjExtractor(BaseEstimator, TransformerMixin):
-    def starting_adj(self, text):
-        sentence_list = nltk.sent_tokenize(re.sub('[^\w\s]',' ',text))
-        for sentence in sentence_list:
-            pos_tags = nltk.pos_tag(tokenize(sentence))
-            first_word, first_tag = pos_tags[0]
-            if first_tag in ['JJ'] or first_word == 'RT':
-                return True
-        return False
-
-    def fit(self, x, y=None):
-        return self
-
-    def transform(self, X):
-        X_tagged = pd.Series(X).apply(self.starting_adj)
-        return pd.DataFrame(X_tagged)
-    pass
-
 def tokenize(text):
+    """ cleans and tokenizes text string and returns tokens 
+    
+    arguments:
+    text (str) - message string
+    
+    """
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
 
@@ -98,7 +96,7 @@ def index():
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
 
-    ## genre: 
+    ## categorical analysis of each message genra\e
     direct = df[df['genre']=='direct'].iloc[:,4:]
     social = df[df['genre']=='social'].iloc[:,4:]
     news = df[df['genre']=='news'].iloc[:,4:]
@@ -139,7 +137,7 @@ def index():
             'layout': {
                 'title': 'Direct Message Classification',
                 'yaxis': {
-                    'title' : 'Percent of messages',
+                    'title' : 'Percent of "Direct" messages',
                     'tickformat': '%',
                     'range' : [0,0.7],
                     'dtick' : 0.1
@@ -165,7 +163,7 @@ def index():
             'layout': {
                 'title': 'Social Message Classification',
                 'yaxis': {
-                    'title' : 'Percent of messages',
+                    'title' : 'Percent of "Social" messages',
                     'tickformat': '%',
                     'range' : [0,0.7],
                     'dtick' : 0.1
@@ -191,7 +189,7 @@ def index():
             'layout': {
                 'title': 'News Message Classification',
                 'yaxis': {
-                    'title' : 'Percent of messages',
+                    'title' : 'Percent of "News" messages',
                     'tickformat': '%',
                     'range' : [0,0.7],
                     'dtick' : 0.1

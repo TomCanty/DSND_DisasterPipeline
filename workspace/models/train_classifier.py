@@ -20,8 +20,17 @@ from sklearn.metrics import classification_report
 import pickle
 
 class StartingVerbExtractor(BaseEstimator, TransformerMixin):
+    """Class extention of sklearn fit and transform, to identify if the first work of a sentence is a verb or RT"""
 
     def starting_verb(self, text):
+        """Parses the messages into sentences and words, identifies if the first word is verb or RT
+
+        Arguments:
+        text - (str) message
+
+        Return:
+            Boolean
+        """
         sentence_list = nltk.sent_tokenize(re.sub('[^\w\s]',' ',text))
         for sentence in sentence_list:
             pos_tags = nltk.pos_tag(tokenize(sentence))
@@ -37,30 +46,26 @@ class StartingVerbExtractor(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
+        """Transform message into boolean per the starting_verb function"""
         X_tagged = pd.Series(X).apply(self.starting_verb)
-        return pd.DataFrame(X_tagged)
-    pass
-
-class StartingAdjExtractor(BaseEstimator, TransformerMixin):
-    def starting_adj(self, text):
-        sentence_list = nltk.sent_tokenize(re.sub('[^\w\s]',' ',text))
-        for sentence in sentence_list:
-            pos_tags = nltk.pos_tag(tokenize(sentence))
-            first_word, first_tag = pos_tags[0]
-            if first_tag in ['JJ'] or first_word == 'RT':
-                return True
-        return False
-
-    def fit(self, x, y=None):
-        return self
-
-    def transform(self, X):
-        X_tagged = pd.Series(X).apply(self.starting_adj)
         return pd.DataFrame(X_tagged)
     pass
 
 
 def load_data(database_filepath):
+    """ Loads the sqlite database per the database_filepath 
+    
+    Loads the "Messages" Table froom SQLite database which was created by process_data.py.
+
+
+    Arguments:
+    database_filepath (str) - sqlite database filepath and name
+    
+    Returns:
+    X (Dataframe) - a dataframe of all of the messages from the database
+    Y (Dateframe) - a dataframe of how each meassage is classified over a couple dozen categories
+    Y.columns (list) - a list of categories
+    """
     dbpath = 'sqlite:///' + database_filepath
     engine = create_engine(dbpath)
     df = pd.read_sql('SELECT * FROM "Messages"', engine)
@@ -71,6 +76,13 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
+    """ cleans and tokenizes text string and returns tokens 
+    
+    arguments:
+    text (str) - message string
+    
+    """
+
     tokens = word_tokenize(re.sub('[^\w\s]',' ',text))
     lem = WordNetLemmatizer()
     
@@ -83,14 +95,15 @@ def tokenize(text):
 
 
 def build_model():
+    """ Builds the gridsearched ML pipeline  """
+
     pipeline = Pipeline([
         ('features',FeatureUnion([
             ('text_pipeline', Pipeline([
                 ('vect', CountVectorizer(tokenizer=tokenize)),
                 ('tfidf', TfidfTransformer())
             ])),
-            ('starting_verb', StartingVerbExtractor()),
-            ('starting_adj', StartingAdjExtractor())
+            ('starting_verb', StartingVerbExtractor())
         ])),
         ('clf', MultiOutputClassifier(RandomForestClassifier()))
         ])
@@ -106,6 +119,13 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    """Evaluates a fitted model, prints classification report for each category
+
+    Arguments:
+    model - pipeline model built using the build_model funtion
+    X_test - X data
+    Y_test - 
+    """
     Y_predict = model.predict(X_test)
     for i in range(Y_test.shape[1]):
         print(category_names[i])
@@ -114,6 +134,7 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
+    """ saves the model,via pickle, to the model_filepath"""
     pickle.dump(model, open(model_filepath, 'wb'))
     pass
 

@@ -4,8 +4,18 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 
-def load_data(messages_filepath, categories_filepath):
-    """ Returns df composed of the messages and categories from csv of filepaths provided"""
+def load_data(messages_filepath, categories_filepath): 
+    """ Returns df composed of the messages and categories from csv of filepaths provided for training
+    
+    Takes a csv (messages) with columns; id, message, original, genre, and merges it with identified 
+    categories (categories) and returns it as a pandas dataframe
+    
+    Arguments:
+    messages_filepath -- Filepath   to the csv containing the message text 
+    categories_filepath -- Filepath to the csc to the categorization of 
+
+    Returns: Pandas Dataframe
+    """
     categories = pd.DataFrame.from_csv(categories_filepath)
     messages = pd.DataFrame.from_csv(messages_filepath)
     df = messages.merge(categories,left_index=True,right_index=True)
@@ -15,11 +25,17 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df):
-    """ One hot encodes category data and removes duplicates"""
+    """ Cleans the datefram loades from the categories and messages csv
+    
+    One hot encodes category data and removes duplicates. Returns new dataframe
+
+    Arguments: df - Dataframe
+
+    Returns: Pandas Dataframe   
+    """
     
     # Create column categoriy and one hot encode
     categories = df.categories.str.split(';').apply(pd.Series)
-    row = categories.iloc[0,:]
     category_colnames = list(categories.iloc[0,:].str.split("-").apply(lambda x: x[0]))
     categories.columns = category_colnames
 
@@ -36,7 +52,13 @@ def clean_data(df):
 
 
 def save_data(df, database_filename):
-    """ Saves the df to a sqlite database """
+    """ Saves the df to a sqlite database per filename provided
+    
+    Arguments: 
+    df - cleaned dataframe
+    database_filename - string with database filename and path
+
+    """
 
     engine = create_engine('sqlite:///' + database_filename)
     df.to_sql('Messages', engine, index=False)
