@@ -12,3 +12,21 @@
     `python run.py`
 
 3. Go to http://0.0.0.0:3001/
+
+### script files and thier Requirements
+1. Scripts
+    1. data/process_data.py
+    2. models/train_classifier.py
+    3. app/run.py
+2. Library Requirements:
+    -   sys
+    -   json
+    -   plotly
+    -   pandas
+    -   numpy
+    -   re
+    -   nltk
+    -   flask
+    -   sklearn
+    -   sqlalchemy
+

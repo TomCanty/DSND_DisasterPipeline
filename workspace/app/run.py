@@ -96,7 +96,7 @@ def index():
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
 
-    ## categorical analysis of each message genra\e
+    ## visuals #2-4: categorical analysis of each message genre
     direct = df[df['genre']=='direct'].iloc[:,4:]
     social = df[df['genre']=='social'].iloc[:,4:]
     news = df[df['genre']=='news'].iloc[:,4:]
